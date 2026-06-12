@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>打胶工装索引 · 搜索引擎</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-secondary: #64748b;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,.08), 0 4px 10px rgba(0,0,0,.04);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ---- Header ---- */
+  .header {
+    text-align: center;
+    padding: 48px 20px 24px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -.5px;
+    color: var(--text);
+  }
+  .header .sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+  }
+
+  /* ---- Search ---- */
+  .search-wrap {
+    max-width: 640px;
+    margin: 0 auto 32px;
+    padding: 0 20px;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 28px;
+    padding: 10px 18px;
+    gap: 10px;
+    box-shadow: var(--shadow);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .search-box:focus-within {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-lg), 0 0 0 3px rgba(37,99,235,.1);
+  }
+  .search-box svg { flex-shrink:0; color:#94a3b8; }
+  .search-box input {
+    flex:1; border:none; outline:none; font-size:16px;
+    background: transparent; color: var(--text);
+  }
+  .search-box input::placeholder { color: #94a3b8; }
+  .search-box .clear-btn {
+    background:none; border:none; cursor:pointer;
+    color:#94a3b8; font-size:18px; padding:0 4px; line-height:1;
+    display:none;
+  }
+  .search-box .clear-btn.visible { display:block; }
+
+  /* ---- Zone filters ---- */
+  .zone-filters {
+    max-width: 640px;
+    margin: 0 auto 8px;
+    padding: 0 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .zone-tag {
+    padding: 4px 12px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    transition: all .15s;
+    user-select: none;
+  }
+  .zone-tag:hover { border-color: var(--accent); color: var(--accent); }
+  .zone-tag.active { background: var(--accent); color:#fff; border-color:var(--accent); }
+
+  /* ---- Stats ---- */
+  .stats {
+    max-width: 640px;
+    margin: 0 auto 16px;
+    padding: 0 20px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .stats em { font-style:normal; font-weight:600; color:var(--text); }
+
+  /* ---- Results ---- */
+  .results {
+    max-width: 680px;
+    margin: 0 auto 60px;
+    padding: 0 20px;
+  }
+  .result-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    box-shadow: var(--shadow);
+    transition: border-color .15s, box-shadow .15s;
+    cursor: default;
+  }
+  .result-item:hover {
+    border-color: #cbd5e1;
+    box-shadow: var(--shadow-lg);
+  }
+  .result-item .coord-badge {
+    flex-shrink: 0;
+    width: 42px; height: 42px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items:center; justify-content:center;
+    font-weight: 700; font-size: 14px;
+    color: #fff;
+  }
+  .result-item .info {
+    flex:1;
+    min-width:0;
+  }
+  .result-item .name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    word-break: break-all;
+    line-height: 1.4;
+  }
+  .result-item .name mark {
+    background: #fef08a;
+    color: #1e293b;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+  .result-item .meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  /* ---- Empty state ---- */
+  .empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-secondary);
+  }
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty .title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom:6px; }
+  .empty .hint { font-size: 14px; }
+
+  /* ---- Color coding for zones ---- */
+  .zone-A { background: #3b82f6; }
+  .zone-B { background: #8b5cf6; }
+  .zone-C { background: #06b6d4; }
+  .zone-D { background: #f59e0b; }
+  .zone-E { background: #ef4444; }
+  .zone-F { background: #10b981; }
+  .zone-G { background: #6366f1; }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 480px) {
+    .header { padding: 28px 16px 16px; }
+    .header h1 { font-size: 22px; }
+    .search-box input { font-size: 15px; }
+    .result-item { padding: 12px 14px; gap: 10px; }
+    .result-item .coord-badge { width: 36px; height: 36px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔧 打胶工装索引</h1>
+  <p class="sub">124 条工装记录 · 快速查找定位</p>
+</div>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <circle cx="11" cy="11" r="8"/>
+      <path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input type="text" id="searchInput" placeholder="输入工装名称搜索……" autofocus>
+    <button class="clear-btn" id="clearBtn" title="清除">✕</button>
+  </div>
+</div>
+
+<div class="zone-filters" id="zoneFilters"></div>
+
+<div class="stats" id="stats">共 <em>124</em> 条记录</div>
+
+<div class="results" id="results"></div>
+
+<script>
+// ===== DATA =====
+const DATA = [
+  ["SY-RXD-R 思域日行灯","A1"],["Xin-SY-RXD-R 新思域","A1"],["510-RXD-L","A1"],["WRV-RXD-R","A1"],
+  ["MDO-RXD-R-RJ 蒙迪欧","A2"],["TATA-RXD-L-NOXON 塔塔 NOXON","A2"],
+  ["XUV 700-HGD-L","A3"],["Swift-L2D-R-RJ","A3"],["领动雾灯","A3"],
+  ["FOX-R-RJ-RXD 福克斯","A4"],["SY-YM-L  思域野马款","A4"],["BSRXD-R 博士日行灯","A4"],
+  ["FAJUE-R 发觉后杠灯","A5"],["SK-HGD-R 斯酷后杠灯","A5"],["XD-Venue-R 维纽","A5"],
+  ["Xin-WT-RXD-L-RJ 新瓦特","A6"],["avanza-DP-RXD-R 阿维日低配日行灯","A6"],
+  ["I20-R-RJ-Xin-HGD 新机器","A7"],["SKGCD-R 大机","A7"],["20-WTL-RXD-R 20维特拉","A7"],["Ertiga-RXD-L 欧替卡日行灯","A7"],
+  ["CRETA-HGD-L X25右杠灯（老机）","C1"],["BaoLai-R 宝来","C1"],["XD-ZWD-Biao-L 现代标","C1"],
+  ["2020 IX25-RXD-L 新机","C2"],["22款威驰日行灯","C2"],
+  ["LX-SY-RXD-HGD-L 两厢思域","C3"],["I10-RXD-L I10日行灯","C3"],["Sonet-RXD-L 起亚日行灯","C3"],
+  ["WC-HGD-R 19威驰后杠灯（新机）","C4"],["OTJ-L20-R 欧替加立柱灯（新机）","C4"],
+  ["IX25-RXD-L-RJ IX25双光日行灯","C5"],["89-RXD-L-RJ","C5"],
+  ["VOXY-HGD-L 丰田80后杠灯（新机）","C6"],["I20-RXD-L R20日行灯","C6"],
+  ["KLL-RXD-R-LY-Xin 7.4卡罗拉","C7"],["19-HSYCWD-R 海狮原厂雾灯","C7"],
+  ["JMN-WD-L 吉姆尼尾灯","E1"],["IX25-RXD-R-Xin 18款IX25日行灯","E1"],
+  ["KMR-RXD-L 凯美瑞","E2"],["JP-R-RJ 吉普后杠灯","E2"],["FD-R-RJ 飞度","E2"],
+  ["14国外威驰后杠灯","E3"],["avanza-RXD-R 阿维日高配日行灯","E3"],
+  ["HLKS-L 海拉克斯四眼雾灯","E4"],["IX25后杠灯（24款）","E4"],
+  ["Venue-HGD-L 维纽","E5"],["Xin-Swift-C-RXD-L  新Swift C型日行灯（新瓦特）","E5"],["Rush-HGD-R","E5"],
+  ["MHD-THAR-L-RXD 马恒达新机","E6"],["FJ-LZD-R-RJ 发觉立柱灯","E6"],
+  ["本田 XRV日行灯","E7"],["I20-LZD-L I20立柱灯","E7"],
+  ["VF3-GCD-L-1  越南VF3贯穿灯","G1"],["日本雾灯（作废）","G1"],["I10-L-RJ I10后杠灯（大头新灯）","G1"],["IX25-RXD-L-Xin  新IX25日行灯第二副模具","G1"],
+  ["I20-L-RJ-HGD  I20","G2"],["NS-HGD-L  纳森后杠灯","G2"],["23YNH-RXD","G2"],["WTL-RXD-R  维特拉双光日行灯","G2"],["IX25-HGD-L-LAO  IX25后杠灯（老）","G2"],
+  ["VF3-WD-L","G3"],["A2-RXD-L  阿扎","G3"],["3X0后杠灯","G3"],["YLKGCD-R  伊拉克贯穿灯","G3"],
+  ["GN-2WD-L1","G4"],["阿维日贯穿灯R","G4"],
+  ["LMYY-R-RJ 铃木雨燕","B1"],["CHR-RXD-R","B1"],["朗逸小头左","B1"],["AVANZA-R 阿维日贯穿灯","B1"],
+  ["CRETA-HGD-L 20款IX25后杠灯（新机）","B2"],["2020 IX25-RXD-R(老机）","B2"],["SKRXD-R 斯酷","B2"],["YD300-HGD-L 印度300(XUV300)","B2"],
+  ["RBWD-R 日本雾灯（10-12）","B3"],["MHD-SCORP10-L 马恒达斯酷 SCORP10","B3"],["20-DZIRE-YuYan-RXD-R 20雨燕Dzire日行灯","B3"],
+  ["FJ-RXD-R 发觉日行灯（新）","B4"],["2020 KLL-RXD-L 2020卡罗拉","B4"],["24雨燕日行灯","B4"],
+  ["KLL-RXD-L-RJ 卡罗拉左","B5"],["YZL-RXD-R 亚洲龙日行灯（大机6 新机4.2）","B5"],["CX-3-HGD-R 后杠灯","B5"],
+  ["BNL-RXD-R 班尼路","B6"],["20-WTL-RXD-L 维特拉日行灯（老机）","B6"],["SL-RXD-L-RJ 三菱日行灯","B6"],
+  ["21 XRV-RXD-L","B7"],["XUV 300日行灯L","B7"],["HLD-L   汉兰达","B7"],
+  ["LM-L 铃木","D1"],["LD-RXD-R-RJ 凌度","D1"],["WC-HGD-Lao-R  老威驰后杠灯","D1"],
+  ["21-YNH-RXD-R-RJ 21伊诺华（大机6.2）","D2"],["YG-L-HGD","D2"],
+  ["I20-HGD-L-Xin 新I20后杠灯（老机）","D3"],["YLS-HGD-L 雅力士后杠灯","D3"],
+  ["YNJM-R印尼吉姆","D4"],["JP-RXD-R-RJ 吉普双色流转日行灯","D4"],
+  ["avanza-HGD-R","D5"],["HT-L 哈特后杠灯","D5"],
+  ["YLKRXD-L","D6"],["SBL-R-RJ 斯巴鲁","D6"],
+  ["国内领动","D7"],
+  ["J5-R24-WD-L J5 R24尾灯","F1"],["YIBO-WD-R 翼博尾灯","F1"],
+  ["MiNi-WD-L  迷你尾灯（新机）","F2"],["SY-GCD-LR  思域尾翼贯穿灯（老机）","F2"],["03WC-HGD-L 03威驰","F2"],
+  ["SK-R-RJ 尚酷（大机）","F3"],["SAGA-WD-WD-R 弯灯","F3"],["BKGCD","F3"],
+  ["SAGA-WD-PD-R  萨卡尾灯平灯（大机）","F4"],["YNJM-R  印尼吉姆尾灯","F4"],
+  ["无标识1","F5"],["PSN-WD-R  帕索纳（老机）","F5"],
+  ["AXIA-WD-L  AXIA阿霞尾灯","F6"],["CX-5-L-RJ  马自达 CX-5日行灯","F6"],
+  ["I20-GCD-LR (新机)","F7"],["无标识2","F7"],["PSN-WD-R  帕索纳尾灯（新机）","F7"],
+  ["SY-YG-L-RJ  鱼骨款","F8"],["GW-ZWD-R1  GW-ZWD-R2短 GW-ZWD-R3 L3长  新国外 中网灯","F8"]
+];
+
+// ===== DOM refs =====
+const searchInput = document.getElementById('searchInput');
+const clearBtn = document.getElementById('clearBtn');
+const resultsEl = document.getElementById('results');
+const statsEl = document.getElementById('stats');
+const zoneFiltersEl = document.getElementById('zoneFilters');
+
+let activeZone = null;
+
+// ===== Build zone filters =====
+const zones = [...new Set(DATA.map(d => d[1].charAt(0)))].sort();
+zoneFiltersEl.innerHTML = zones.map(z =>
+  `<span class="zone-tag zone-${z}" data-zone="${z}">${z}区</span>`
+).join('');
+zoneFiltersEl.addEventListener('click', e => {
+  const tag = e.target.closest('.zone-tag');
+  if (!tag) return;
+  if (activeZone === tag.dataset.zone) {
+    activeZone = null;
+  } else {
+    activeZone = tag.dataset.zone;
+  }
+  document.querySelectorAll('.zone-tag').forEach(t => t.classList.toggle('active', t.dataset.zone === activeZone));
+  render();
+});
+
+// ===== Search logic =====
+function match(item, query) {
+  if (!query) return true;
+  const name = item[0].toLowerCase();
+  const coord = item[1].toLowerCase();
+  const q = query.toLowerCase();
+  // Multi-term: each word must match somewhere
+  return q.split(/\s+/).every(term => name.includes(term) || coord.includes(term));
+}
+
+function highlight(text, query) {
+  if (!query) return text;
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`(${escaped})`, 'gi');
+  return text.replace(pattern, '<mark>$1</mark>');
+}
+
+function render() {
+  const query = searchInput.value.trim();
+
+  let filtered = DATA;
+  if (activeZone) {
+    filtered = filtered.filter(d => d[1].charAt(0) === activeZone);
+  }
+  if (query) {
+    filtered = filtered.filter(d => match(d, query));
+  }
+
+  // Stats
+  statsEl.innerHTML = query || activeZone
+    ? `找到 <em>${filtered.length}</em> 条 / 共 <em>${DATA.length}</em> 条`
+    : `共 <em>${DATA.length}</em> 条记录`;
+
+  // Clear btn
+  clearBtn.classList.toggle('visible', query.length > 0);
+
+  // Results
+  if (filtered.length === 0) {
+    resultsEl.innerHTML = `<div class="empty">
+      <div class="icon">🔍</div>
+      <div class="title">没有找到匹配的工装</div>
+      <div class="hint">试试简化关键词，或按区域标签筛选</div>
+    </div>`;
+    return;
+  }
+
+  resultsEl.innerHTML = filtered.map(d => {
+    const [name, coord] = d;
+    const zone = coord.charAt(0);
+    const hlName = highlight(name, query);
+    return `<div class="result-item">
+      <div class="coord-badge zone-${zone}">${coord}</div>
+      <div class="info">
+        <div class="name">${hlName}</div>
+        <div class="meta">打胶工装 · ${zone}区</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===== Events =====
+searchInput.addEventListener('input', render);
+clearBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  searchInput.focus();
+  render();
+});
+
+// Keyboard shortcut: / to focus search
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== searchInput) {
+    e.preventDefault();
+    searchInput.focus();
+  }
+});
+
+// Initial render
+render();
+</script>
+</body>
+</html>
